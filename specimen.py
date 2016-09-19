@@ -36,6 +36,8 @@ class Specimen(BoxLayout):
         self.controller = FilledRect(xrange=[50, 56],
                                      yrange=[12, 18],
                                      color=[0, 0, 255])
+        break_line = MeshLinePlot(color=[0, 0, 255, 1])
+        break_line.points []
         self.graph.add_plot(self.matrix)
         self.graph.add_plot(self.reinf)
         self.graph.add_plot(self.controller)
