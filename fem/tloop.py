@@ -13,7 +13,13 @@ class TLoop:
     def __init__(self, **kwargs):
         self.ts = TStepper()
         self.kmax = 50
+        # set the keyword parameters (to replace the default values)
+        for key, value in kwargs.iteritems():
+            setattr(self, key, value)
+        self.initialize_arrays()
 
+    def initialize_arrays(self):
+        '''create the arrays to store the state variables'''
         n_e = self.ts.n_e_x
         n_ip = self.ts.fets_eval.n_gp
         n_s = self.ts.mats_eval.n_s
@@ -21,6 +27,7 @@ class TLoop:
         self.sig = np.zeros((n_e, n_ip, n_s))
         self.alpha = np.zeros((n_e, n_ip))
         self.q = np.zeros((n_e, n_ip))
+        self.kappa = np.zeros((n_e, n_ip))
         self.U = np.zeros(self.ts.n_dofs)
         self.F = np.zeros(self.ts.n_dofs)
 
@@ -32,14 +39,12 @@ class TLoop:
         self.eps_record = [0.]
         self.sig_record = [0.]
 
-        self.d_u = 0.05
-
     def get_initial_k(self):
         '''calculate the initial stiffness matrix'''
         d_U = np.zeros_like(self.U)
-        F_int, d, a, b, eps, sig, alpha, q = \
+        F_int, d, a, b, eps, sig, alpha, q, kappa = \
             self.ts.get_corr_pred(
-                self.U, d_U, self.eps, self.sig, self.alpha, self.q)
+                self.U, d_U, self.eps, self.sig, self.alpha, self.q, self.kappa)
         return d, a, b
 
     def get_p(self, d_u):
@@ -55,9 +60,9 @@ class TLoop:
                 n_dofs, self.d, self.a, self.b, self.a, self.b, u_incre)
             d_U = np.append(0, x[0:-1])
             # update the stiffness matrix and calculate the internal force
-            F_int, self.d, self.a, self.b, self.eps, self.sig, self.alpha, self.q = \
+            F_int, self.d, self.a, self.b, self.eps, self.sig, self.alpha, self.q, self.kappa = \
                 self.ts.get_corr_pred(
-                    self.U, d_U, self.eps, self.sig, self.alpha, self.q)
+                    self.U, d_U, self.eps, self.sig, self.alpha, self.q, self.kappa)
             # update U
             self.U += d_U
             # reset d_U
@@ -102,8 +107,8 @@ if __name__ == '__main__':
     tl.eval()
 #     U_record, F_record = tl.eval()
 #     plt.plot(U_record[:, -1], F_record[:, -1])
-#     plt.plot(tl.U_record, tl.F_record)
-    plt.plot(tl.eps_record, tl.sig_record)
+    plt.plot(tl.U_record, tl.F_record)
+#     plt.plot(tl.eps_record, tl.sig_record)
 #     print U_record[:, -1]
 #     print F_record[:, -1]
     plt.show()

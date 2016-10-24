@@ -5,7 +5,7 @@ Created on 26.04.2016
 '''
 from kivy.graphics import RenderContext
 from kivy.graphics.vertex_instructions import Line
-
+from kivy.properties import NumericProperty
 from kivy.garden.graph import Plot, Color, Mesh
 
 
@@ -14,10 +14,11 @@ class LinePlot(Plot):
     '''
     draw a line by the given color and thickness
     '''
-    width = 1.
+    width = NumericProperty(1.)
 
     def __init__(self, **kwargs):
         super(LinePlot, self).__init__(**kwargs)
+        self.bind(width=self.ask_draw)
 
     def create_drawings(self):
         self._mesh = Mesh(mode='lines')

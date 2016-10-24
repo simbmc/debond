@@ -18,16 +18,20 @@ class TStepper:
         self.mats_eval = MATSEval()
         # element
         self.fets_eval = FETS1D52ULRH()
-        # the cross-sectional area of matrix, bond interface and reinforcement
-        self.A = np.array([1., 1., 1.])
+        # the cross-sectional area of the matrix
+        self.A_m = 1.
+        # the cross-sectional area of the reinforcement
+        self.A_f = 1.
         # Number of elements
         self.n_e_x = 50
         # total specimen length
         self.L_x = 600.0
-        # set the keyword parameters
+        # set the keyword parameters (to replace the default values)
         for key, value in kwargs.iteritems():
             setattr(self, key, value)
 
+        # the cross-sectional area of matrix, bond interface and reinforcement
+        self.A = np.array([self.A_m, 1., self.A_f])
         # the total number of DoFs
         self.n_dofs = 2 * (self.n_e_x + 1)
         # meshing, return the array containing the coordinates of each element
@@ -180,7 +184,7 @@ class TStepper:
 
         return d, a, b
 
-    def get_corr_pred(self, U, d_U, eps, sig, alpha, q):
+    def get_corr_pred(self, U, d_U, eps, sig, alpha, q, kappa):
         '''Function calculating the residuum and tangent operator.
         '''
         mats_eval = self.mats_eval
@@ -204,8 +208,8 @@ class TStepper:
         eps += d_eps
 
         # material response state variables at integration point
-        sig, D, alpha, q = mats_eval.get_corr_pred(
-            eps, d_eps, sig, alpha, q)
+        sig, D, alpha, q, kappa = mats_eval.get_corr_pred(
+            eps, d_eps, sig, alpha, q, kappa)
 
         # system matrix
         Ke = np.einsum('i,s,einsd,eist,eimtf,ei->endmf',
@@ -222,7 +226,7 @@ class TStepper:
 #         print 'Fe_int', Fe_int
         F_int = np.bincount(elem_dof_map.flatten(), weights=Fe_int.flatten())
 
-        return F_int, d, a, b, eps, sig, alpha, q
+        return F_int, d, a, b, eps, sig, alpha, q, kappa
 
 if __name__ == '__main__':
     t = TStepper()

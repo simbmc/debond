@@ -62,6 +62,7 @@ if __name__ == '__main__':
     from kivy.garden.graph import Graph
     import random
     from kivy.clock import Clock
+    from kivy.uix.label import Label
 
     class TestApp(App):
 
@@ -75,7 +76,7 @@ if __name__ == '__main__':
                 y_ticks_major=10,
                 y_grid_label=True,
                 x_grid_label=True,
-                padding=5,
+                padding=0,
                 xlog=False,
                 ylog=False,
                 xmin=0,
@@ -86,11 +87,20 @@ if __name__ == '__main__':
             plot.yrange = [30, 50]
             graph2.add_plot(plot)
 
+#             plot2 = FilledRect(color=[255, 255, 255])
+#             plot2.xrange = [50, 70]
+#             plot2.yrange = [30, 50]
+            label = Label(text='test', font_size=20)
+            label.pos = (100, 100)
+#             text = label.texture
+#             plot2.texture = text
+            graph2.add_widget(label)
+
             b.add_widget(graph2)
             self.rectangle = plot
 
-            Clock.schedule_interval(self.update_color, 1)
-            Clock.schedule_interval(self.update_pos, 1)
+#             Clock.schedule_interval(self.update_color, 1)
+#             Clock.schedule_interval(self.update_pos, 1)
 
             return b
 
