@@ -2,7 +2,7 @@
 import numpy as np
 
 
-class FETS1D52ULRH:
+class FETS1D52ULRH(object):
 
     '''
     Bar element with bond interface, the element is one-dimensional and has two nodes, each node has two DoFs

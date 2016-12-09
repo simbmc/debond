@@ -41,6 +41,7 @@ class MainWindow(App):
 
         reset = Button(text='Reset')
         reset.bind(on_press=self.settings_popup.reset)
+
         btns.add_widget(Label())
         btns.add_widget(Label())
         btns.add_widget(settings)
@@ -57,6 +58,7 @@ class MainWindow(App):
         self.settings_popup.confirm_settings(btn)
         self.root.clear_widgets()
         self.add_widgets(self.root)
+        self.settings_popup.reset(None)
 
 
 if __name__ == '__main__':

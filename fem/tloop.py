@@ -8,7 +8,7 @@ import numpy as np
 from solve_pentadiagonal import solve
 
 
-class TLoop:
+class TLoop(object):
 
     def __init__(self, **kwargs):
         self.ts = TStepper()
@@ -54,6 +54,9 @@ class TLoop:
         u_incre[-1] = d_u
         k = 0
         while k <= self.kmax:
+            if k == self.kmax:
+                print 'non_convergence'
+
             k += 1
             # solve the trail displacement incremental
             x = solve(

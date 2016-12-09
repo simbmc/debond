@@ -143,7 +143,7 @@ class Specimen(BoxLayout):
                 # make sure the controller doesn't enter the matrix
                 x = max(x, 53.)
                 x = min(x, 93.)
-                if abs(x - self.x_current) >= 2:
+                if abs(x - self.x_current) >= 1:
                     d_u = (x - self.x_current) * self.max_displacement / 40.
                     self.tl.get_p(d_u)
                     self.x_current = x

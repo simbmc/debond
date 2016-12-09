@@ -17,15 +17,15 @@ class ResizeGraph(Graph):
 
     def __init__(self, **kwargs):
         super(ResizeGraph, self).__init__(**kwargs)
-        self.x_min = self.xmin
-        self.x_max = self.xmax
-        self.y_min = self.ymin
-        self.y_max = self.ymax
         self.numpad = Numpad()
         self.numpad.p = self
         self.editNumpad = Popup(content=self.numpad)
         self.create_buttons()
         self.create_panel()
+        self.x_min = self.xmin
+        self.x_max = self.xmax
+        self.y_min = self.ymin
+        self.y_max = self.ymax
 
     n_x_ticks = NumericProperty(5.)
     n_y_ticks = NumericProperty(5.)
@@ -39,21 +39,25 @@ class ResizeGraph(Graph):
         self.xmin = self.x_min
         a = (self.x_max - self.x_min) / self.n_x_ticks
         self.x_ticks_major = round(a, -int(np.log10(a)) + 1)
+        self.x_l.text = str(self.x_min)
 
     def on_x_max(self, instance, value):
         self.xmax = self.x_max
         a = (self.x_max - self.x_min) / self.n_x_ticks
         self.x_ticks_major = round(a, -int(np.log10(a)) + 1)
+        self.x_u.text = str(self.x_max)
 
     def on_y_min(self, instance, value):
         self.ymin = self.y_min
         a = (self.y_max - self.y_min) / self.n_y_ticks
         self.y_ticks_major = round(a, -int(np.log10(a)) + 1)
+        self.y_l.text = str(self.y_min)
 
     def on_y_max(self, instance, value):
         self.ymax = self.y_max
         a = (self.y_max - self.y_min) / self.n_y_ticks
         self.y_ticks_major = round(a, -int(np.log10(a)) + 1)
+        self.y_u.text = str(self.y_max)
 
     def on_touch_down(self, touch):
         if self.collide_point(touch.x, touch.y):

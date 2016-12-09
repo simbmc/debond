@@ -15,7 +15,6 @@ from kivy.uix.popup import Popup
 from plot.line import LinePlot
 from plot.filled_ellipse import FilledEllipse
 from kivy.properties import ListProperty
-from kivy.properties import BoundedNumericProperty
 import numpy as np
 
 
@@ -23,7 +22,7 @@ class MultilinearEditor(BoxLayout):
 
     n_points = NumericProperty(5.)
     points = ListProperty(
-        [(0, 0), (0.2, 0.2), (0.4, 0.4), (0.6, 0.6), (0.8, 0.8), (1.0, 1.0)])
+        [(0, 0), (0.2, 0.15), (0.4, 0.3), (0.6, 0.45), (0.8, 0.6), (1.0, 0.75)])
 
     def on_n_points(self, instance, value):
         x = np.linspace(self.graph.x_min, self.graph.x_max, self.n_points)
@@ -137,7 +136,7 @@ class MultilinearEditor(BoxLayout):
                         self.editNumpad.dismiss()
                         self.check_input.open()
                         return
-                if x < self.points[self.selected - 1][0] or x > self.points[self.selected + 1][0]:
+                elif x < self.points[self.selected - 1][0] or x > self.points[self.selected + 1][0]:
                     self.editNumpad.dismiss()
                     self.check_input.open()
                     return
@@ -159,7 +158,7 @@ class MultilinearEditor(BoxLayout):
                         self.check_input.open()
                         return
 
-                if y < self.points[self.selected - 1][1] or y > self.points[self.selected + 1][1]:
+                elif y < self.points[self.selected - 1][1] or y > self.points[self.selected + 1][1]:
                     self.editNumpad.dismiss()
                     self.check_input.open()
                     return

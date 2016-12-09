@@ -15,7 +15,8 @@ from numpad import Numpad
 from fem.tstepper import TStepper
 from fem.matseval import MATSEval
 from fem.tloop import TLoop
-from multilinear_editor import MultilinearEditor
+# from multilinear_editor import MultilinearEditor
+from bond_editor import BondEditor
 
 
 class Settings(Popup):
@@ -25,15 +26,32 @@ class Settings(Popup):
         self.specimen = Specimen(size_hint=(1, 0.2))
         self.title = 'Settings'
         self.create_btns()
+        self.create_bond_editor()
         # assign the text values to the buttons
-        self.cancel_settings()
+        self.assign_initial_values()
         self.create_content()
         self.numpad = Numpad()
         self.numpad.p = self
         self.editNumpad = Popup(content=self.numpad)
-        self.multilinear = MultilinearEditor()
-        self.damage_editor = Popup(
-            content=self.multilinear, title='edit damage law')
+
+    def create_bond_editor(self):
+        self.bond = BondEditor()
+        self.bond_editor = Popup(
+            content=self.bond, title='edit bond-slip law')
+        self.bond.ok_button.bind(on_press=self.confirm_bond_edit)
+        self.bond.cancel_button.bind(on_press=self.cancel_bond_edit)
+
+    def confirm_bond_edit(self, btn):
+        self.bond_editor.dismiss()
+
+    def cancel_bond_edit(self, btn):
+        self.bond_editor.dismiss()
+        self.bond.mats = self.specimen.tl.ts.mats_eval
+        self.bond.update_graph()
+        self.bond.e_b_button.text = str(self.bond.mats.E_b)
+        self.bond.sig_y_button.text = str(self.bond.mats.sigma_y)
+        self.bond.K_button.text = str(self.bond.mats.K_bar)
+        self.bond.H_button.text = str(self.bond.mats.H_bar)
 
     def create_btns(self):
         # matrix stiffness
@@ -48,7 +66,7 @@ class Settings(Popup):
 
         # bond property
         self.b_p = Button(text='configure...')
-        self.b_p.bind(on_press=self.show_numpad)
+        self.b_p.bind(on_press=self.show_bond_editor)
 
         # matrix area
         self.m_a = Button()
@@ -134,14 +152,14 @@ class Settings(Popup):
         box.add_widget(ok_cancel)
         self.content = box
 
-    def show_damage_editor(self, btn):
-        self.damage_editor.open()
+    def show_bond_editor(self, btn):
+        self.bond_editor.open()
 
     def dismiss_panel(self, btn):
         self.cancel_settings()
         self.dismiss()
 
-    def reset(self, button):
+    def reset(self, btn):
         self.specimen.tl.initialize_arrays()
         self.specimen.x_current = 53.
         self.specimen.f_u_line.points = [(0, 0)]
@@ -169,6 +187,10 @@ class Settings(Popup):
         self.editNumpad.dismiss()
 
     def cancel_settings(self):
+        self.cancel_bond_edit(btn=None)
+        self.assign_initial_values()
+
+    def assign_initial_values(self):
         self.m_s.text = str(self.specimen.tl.ts.mats_eval.E_m)
         self.r_s.text = str(self.specimen.tl.ts.mats_eval.E_f)
         self.m_a.text = str(self.specimen.tl.ts.A_m)
@@ -179,19 +201,18 @@ class Settings(Popup):
 
     def confirm_settings(self, btn):
         material = MATSEval(E_m=float(self.m_s.text),
-                            E_f=float(self.r_s.text))
+                            E_f=float(self.r_s.text),
+                            E_b=self.bond.mats.E_b,
+                            sigma_y=self.bond.mats.sigma_y,
+                            K_bar=self.bond.mats.K_bar,
+                            H_bar=self.bond.mats.H_bar,
+                            f_damage_x=self.bond.mats.f_damage_x,
+                            f_damage_y=self.bond.mats.f_damage_y)
         tstepper = TStepper(mats_eval=material,
                             A_m=float(self.m_a.text),
                             A_f=float(self.r_a.text),
                             n_e_x=int(float(self.n_e.text)),
                             L_x=float(self.s_l.text))
-#         tloop = TLoop(ts=tstepper)
-#         self.specimen = Specimen(size_hint=(1, 0.2),
-#                                  tl = tloop,
-#                                  max_displacement = float(self.p_d.text))
-#         self.dismiss()
-#         self.reset(btn)
-        print 'confirm settings'
 
         self.specimen.tl = TLoop(ts=tstepper)
         self.specimen.max_displacement = float(self.p_d.text)

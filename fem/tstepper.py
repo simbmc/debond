@@ -8,7 +8,7 @@ from matseval import MATSEval
 from element import FETS1D52ULRH
 
 
-class TStepper:
+class TStepper(object):
 
     '''Time stepper object for non-linear Newton-Raphson solver.
     '''
@@ -36,8 +36,8 @@ class TStepper:
         self.n_dofs = 2 * (self.n_e_x + 1)
         # meshing, return the array containing the coordinates of each element
         self.elem_x_map = self.get_elem_x_map()
-        # the DoFs of each element
-        self.elem_dof_map = np.array([2 * i + [0, 1, 2, 3]
+        # the DoFs of each element on each node
+        self.elem_dof_map = np.array([2 * i + [[0, 1], [2, 3]]
                                       for i in np.arange(self.n_e_x)])
         # Array of Jacobian matrices
         self.J_mtx = self.get_J_mtx()
@@ -130,22 +130,6 @@ class TStepper:
         B[:, :,:, B_dN_n_rows, B_dN_n_cols] = dNx[:,:,:, dN_idx]
         return B
 
-    def get_Ke(self):
-        D = np.array([[[28484., 0, 0],
-                       [0, 2., 0],
-                       [0, 0, 170000]],
-                      [[28484., 0, 0],
-                       [0, 2., 0],
-                       [0, 0, 170000]]])
-
-        D = np.array([D for i in np.arange(30)])
-        Ke = np.einsum('i,s,einsd,eist,eimtf,ei->endmf',
-                       self.fets_eval.ip_weights, self.A, self.B, D, self.B, self.J_det)
-#         print Ke[0]
-#         print Ke[0].reshape(4, 4)
-        Ke = Ke.reshape(-1, 4, 4)
-        return Ke
-
     def get_K(self, Ke):
 
         # get the diagonals of K
@@ -196,10 +180,10 @@ class TStepper:
         n_el_dofs = n_dof_r * n_nodal_dofs
         # [ i ]
         w_ip = fets_eval.ip_weights
-        d_u_e = d_U[elem_dof_map]
 
         # [n_e, n_dof_r, n_dim_dof]
-        d_u_n = d_u_e.reshape(self.n_e_x, n_dof_r, n_nodal_dofs)
+        d_u_n = d_U[elem_dof_map]
+
         # [n_e, n_ip, n_s]
         d_eps = np.einsum('einsd,end->eis', self.B, d_u_n)
 
@@ -230,4 +214,4 @@ class TStepper:
 
 if __name__ == '__main__':
     t = TStepper()
-    t.get_K()
+    print t.get_B().shape
